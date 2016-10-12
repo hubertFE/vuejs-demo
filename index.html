@@ -215,7 +215,7 @@ var deepApiUrl = "https://yunbi.com//api/v2/depth.json?market=";
                 xhr.send();
             },
             setAjaxInterval:function () {
-                this.intervalId = window.setInterval(this.fetchDeepData,20000);
+                this.intervalId = window.setInterval(this.fetchDeepData,2000);
             },
             clearAjaxInterval:function () {
                 window.clearInterval(this.intervalId);
