@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Bang</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/vue.js"></script>
+    <script src="js/vue-router.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="nav">
+        <a v-link="{path:'/hq/cny'}"><div>行情</div></a>
+        <a v-link="{path:'/jy/btccny'}"><div>现货交易</div></a>
+        <a v-link="{path:'/hy'}"><div>合约交易</div></a>
+        <a v-link="{path:'/gr'}"><div>个人中心</div></a>
+    </div>
+    <div class="main">
+        <router-view class="mainContent" keep-alive transition="mainContent" transition-mode="out-in"></router-view>
+    </div>
+</div>
+
+
+<template id="hangqing">
+    <div class="hangqing-main">
+        <div class="hangqing-currency">
+            <a v-link="{path:'/hq/cny'}"><div class="nav-cny">CNY定价</div></a>
+            <a v-link="{path:'/hq/btc'}"><div class="nav-btc">BTC定价</div></a>
+        </div>
+        <router-view keep-alive></router-view>
+    </div>
+</template>
+<template id="hangqing-cny">
+    <div >
+        <marketcny v-for="market in markets | filterBy 'cny'" :market="market" :key="$key"></marketcny>
+    </div>
+</template>
+<template id="hangqing-btc">
+    <div >
+        <marketbtc v-for="market in markets | filterBy 'btc'" :market="market" :key="$key"></marketbtc>
+    </div>
+</template>
+<template id="marketcny">
+    <a v-link="{path:'/jy/' + key}"><div class="marketLists">
+        <div class="marketName">{{key | uppercase }}</div>
+        <div class="marketVol">成交量：{{market.ticker.vol }}</div>
+        <div class="marketLast">最新报价：{{market.ticker.last }}</div>
+    </div></a>
+</template>
+<template id="marketbtc">
+    <a v-link="{path:'/jy/' + key}"><div class="marketLists">
+        <div class="marketName">{{key | uppercase }}</div>
+        <div class="marketVol">成交量：{{market.ticker.vol }}</div>
+        <div class="marketLast">最新报价：{{market.ticker.last }}</div>
+    </div></a>
+</template>
+
+
+<template id="jiaoyi">
+    <div class="jiaoyi-main">
+        <div class="pairSelector">
+            <label for="pairSelector">选择交易对</label>
+            <select id="pairSelector" v-model="pair" >
+                <option value="btccny" >BTC/CNY</option>
+                <option value="ethcny" >ETH/CNY</option>
+                <option value="dgdcny">DGD/CNY</option>
+                <option value="plscny">PLS/CNY</option>
+                <option value="btscny">BTS/CNY</option>
+                <option value="dcscny">DCS/CNY</option>
+                <option value="sccny">SC/CNY</option>
+                <option value="daocny">DAO/CNY</option>
+                <option value="etccny">ETC/CNY</option>
+                <option value="1stcny">1ST/CNY</option>
+                <option value="dgdbtc">DGD/BTC</option>
+                <option value="ethbtc">ETH/BTC</option>
+                <option value="daobtc">DAO/BTC</option>
+            </select>
+        </div>
+        <div class="buyselloption">
+            <div>买入</div>
+            <div>卖出</div>
+            <div>未成交</div>
+            <div>历史委托</div>
+        </div>
+        <div class="deeplists">
+            <div class="listTitle">
+                <div>出价</div>
+                <div>数量</div>
+            </div>
+            <deeplist v-for="item in sells " :item="item" :index="Math.abs($index - 10)" class="sellLists">卖</deeplist>
+            <br/>
+            <br/>
+            <deeplist v-for="item in buys" :item="item" :index="$index + 1" class="buyLists">买</deeplist>
+        </div>
+        <div class="placeOrders">
+            <div class="orderType">
+                <select id="orderTypeSelector" v-model="orderType">
+                    <option value="xianjia" selected>限价单</option>
+                    <option value="shijia" >市价单</option>
+                    <option value="zhiying">止盈止损</option>
+                </select>
+            </div>
+            <div v-show="xianjia">
+                <input type="number" />
+                <input type="number" />
+                <input type="number" />
+            </div>
+            <div v-show="shijia">
+                <input type="number" />
+            </div>
+            <div v-show="zhiying">
+                <input type="number" />
+                <input type="number" />
+                <input type="number" />
+                <input type="number" />
+                <input type="number" />
+            </div>
+        </div>
+    </div>
+</template>
+<template id="deeplist">
+    <div class="deeplistItems">
+        <div><div class="listItem"><slot></slot>{{index }}</div><div class="listItem">{{item[0]}}</div><div class="listItem">{{item[1]}}</div></div>
+    </div>
+</template>
+
+<template id="heyuejiaoyi">
+    <div class="heyuejiaoyi-main">
+        <div>
+            <div>交易</div>
+            <div>未成交</div>
+            <div>持有仓位</div>
+        </div>
+    </div>
+</template>
+<template id="gerenzhongxin">
+    <div class="gerenzhongxin-main">
+        <div>点击登录</div>
+        <div>
+            <div>个性化设置</div>
+            <div>汇率概览</div>
+            <div>版本更新</div>
+            <div>意见反馈</div>
+            <div>关于</div>
+        </div>
+    </div>
+</template>
+
+</body>
+<script>
+var marketApiUrl = "https://yunbi.com//api/v2/tickers.json";
+var deepApiUrl = "https://yunbi.com//api/v2/depth.json?market=";
+
+
+
+    var hangqing = Vue.extend({
+        template:'#hangqing',
+        data:function () {
+            return{currentSheet:'/cny'}
+        }
+    });
+    var deeplist = Vue.extend({
+        template:'#deeplist',
+        props:{
+            item:Array,
+            index:Number
+        }
+    });
+    var jiaoyi = Vue.extend({
+        template:'#jiaoyi',
+        components:{
+            'deeplist':deeplist
+        },
+        data:function () {
+            return{
+                pair:'btccny',
+                pairs:'',
+                sells:[],
+                buys:[],
+                intervalId:'',
+                orderType:'',
+                xianjia:true,
+                shijia:false,
+                zhiying:false
+            }
+        },
+        route:{
+          data:function (transition) {
+              this.pair = transition.to.params.pair;
+          }
+        },
+        created:function () {
+            this.fetchDeepData();
+        },
+        ready:function () {
+            this.setAjaxInterval();
+        },
+        beforeDestroy:function () {
+            console.log('destroy');
+            this.clearAjaxInterval(this.intervalId);
+        },
+        watch:{
+            'pair':'fetchDeepData',
+            'orderType':'changeInput'
+        },
+        methods:{
+            fetchDeepData:function () {
+                var xhr = new XMLHttpRequest();
+                var self = this;
+                xhr.open('GET',deepApiUrl + self.pair + '&limit=10');
+                xhr.onload = function () {
+                    self.sells = JSON.parse(xhr.responseText).asks;
+                    self.buys = JSON.parse(xhr.responseText).bids;
+                };
+                xhr.send();
+            },
+            setAjaxInterval:function () {
+                this.intervalId = window.setInterval(this.fetchDeepData,20000);
+            },
+            clearAjaxInterval:function () {
+                window.clearInterval(this.intervalId);
+            },
+            changeInput:function () {
+                switch (this.orderType){
+                    case 'xianjia':
+                        this.xianjia = true;
+                        this.shijia = false;
+                        this.zhiying = false;
+                        break;
+                    case 'shijia':
+                        this.xianjia = false;
+                        this.shijia = true;
+                        this.zhiying = false;
+                        break;
+                    case 'zhiying':
+                        this.xianjia = false;
+                        this.shijia = false;
+                        this.zhiying = true;
+                        break;
+                    default:
+                        this.xianjia = true;
+                        this.shijia = false;
+                        this.zhiying = false;
+                }
+            }
+        }
+
+    });
+    var gerenzhongxin = Vue.extend({
+        template:'#gerenzhongxin'
+    });
+    var heyuejiaoyi = Vue.extend({
+        template:'#heyuejiaoyi'
+    });
+    var marketcny = Vue.extend({
+        template:'#marketcny',
+        props:{
+            market:Object,
+            key:""
+        }
+    });
+    var marketbtc = Vue.extend({
+        template:'#marketbtc',
+        props:{
+            market:Object,
+            key:""
+        }
+    });
+    var hangqingCny = Vue.extend({
+        template:'#hangqing-cny',
+        components:{
+            'marketcny':marketcny
+        },
+        data:function(){
+            return{
+                markets:null
+            }
+        },
+        created:function () {
+            this.fetchData();
+        },
+        methods:{
+            fetchData:function () {
+                var xhr = new XMLHttpRequest();
+                var self = this;
+                xhr.open('GET',marketApiUrl);
+                xhr.onload = function () {
+                    self.markets = JSON.parse(xhr.responseText);
+                };
+                xhr.send();
+            }
+        }
+    });
+    var hangqingBtc = Vue.extend({
+        template:'#hangqing-btc',
+        components:{
+            'marketbtc':marketbtc
+        },
+        data:function(){
+            return{
+                markets:null
+            }
+        },
+        created:function () {
+            this.fetchData();
+        },
+        methods:{
+            fetchData:function () {
+                var xhr = new XMLHttpRequest();
+                var self = this;
+                xhr.open('GET',marketApiUrl);
+                xhr.onload = function () {
+                    self.markets = JSON.parse(xhr.responseText);
+                };
+                xhr.send();
+            }
+        }
+    });
+
+
+
+
+
+    var router = new VueRouter();
+
+    router.map({
+        '/hq':{
+            component:hangqing,
+            subRoutes:{
+                '/cny':{
+                    component:hangqingCny
+                },
+                '/btc':{
+                    component:hangqingBtc
+                }
+            }
+        },
+        '/jy/:pair':{
+            component:jiaoyi
+        },
+        '/gr':{
+            component:gerenzhongxin
+        },
+        '/hy':{
+            component:heyuejiaoyi
+        }
+    });
+
+    router.redirect({
+        '/':'/hq/cny'
+    });
+    var app = Vue.extend({
+
+    });
+    router.start(app, '#app');
+
+</script>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

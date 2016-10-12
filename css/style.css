@@ -1,0 +1,145 @@
+
+a{
+    text-decoration: none;
+}
+.v-link-active > div{
+    background:deepskyblue;
+}
+ul{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+#app{
+    position: relative;
+    width:640px;
+    height:960px;
+    overflow:hidden;
+    margin:0 auto;
+}
+.nav{
+    position: absolute;
+    width:100%;
+    height:160px;
+    top:800px;
+    background:skyblue;
+}
+.nav div{
+    display:table-cell;
+    text-align: center;
+    font-size:30px;
+    width:150px;
+    height:160px;
+    vertical-align: middle;
+}
+.main{
+    background:honeydew;
+    width:100%;
+    height:800px;
+}
+
+
+/*  行情  */
+.hangqing-main .hangqing-currency div{
+    display:inline-block;
+    color:blue;
+    width:315px;
+    height:80px;
+    font-size:40px;
+    text-align:center;
+}
+.marketLists{
+    background:white;
+    height:60px;
+    width:100%;
+    margin:5px 0;
+}
+.marketName{
+    font-size:25px;
+    font-weight:bold;
+    float:left;
+    margin:18px 0 18px 20px;
+}
+.marketVol,
+.marketLast{
+    float:right;
+    font-size:18px;
+    margin:20px 15px 20px 0;
+}
+
+/*  交易  */
+.pairSelector{
+    margin:0 auto;
+    text-align: center;
+    font-size:25px;
+}
+.pairSelector select{
+    width:150px;
+    height:50px;
+    text-align: center;
+    font-size:25px;
+}
+.buyselloption{
+    margin-top:10px;
+}
+.buyselloption div{
+    display:table-cell;
+    font-size:22px;
+    width:160px;
+    text-align: center;
+}
+.deeplists{
+    position: absolute;
+    width:350px;
+    height:680px;
+    bottom:0;
+    right:-25px;
+    font-size:18px;
+    overflow: hidden;
+}
+.jiaoyi-main{
+    width:640px;
+    height:800px;
+    position: relative;
+}
+.listTitle{
+    margin-left:114px;
+}
+.listTitle div{
+    display: table-cell;
+    width:115px;
+}
+.listItem{
+    display: table-cell;
+    width:115px;
+}
+.deeplistItems{
+    margin-top:5px;
+}
+.sellLists{
+    color:red;
+}
+.buyLists{
+    color:green;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
